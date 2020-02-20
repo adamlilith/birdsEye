@@ -1,0 +1,49 @@
+Package: birdsEye
+Type: Package
+Title: Tools for geographic analysis
+Version: 0.0.0.1
+Date: 2020-02-19
+Author: Adam B. Smith <adam.smith@mobot.org>
+Maintainer: Adam B. Smith <adam.smith@mobot.org>
+Description: Tools for geographic analysis
+Depends:
+	dismo,
+	raster
+Imports:
+	boot,
+	cluster,
+	geosphere,
+	gbm,
+	grpreg,
+	grpregOverlap,
+	MASS,
+	maxnet,
+	mgcv,
+	MuMIn,
+	omnibus,
+	party,
+	rJava,
+	randomForest,
+	rgdal,
+	rgeos,
+	rlist,
+	scales,
+	sp,
+	splines,
+	statisfactory,
+	stats
+Remotes:
+	adamlilith/omnibus,
+	adamlilith/statisfactory
+Suggests:
+	brglm2,
+	devtools,
+    knitr,
+    rmarkdown
+License: GPL (>=3) + file LICENSE
+LazyData: false
+LazyLoad: yes
+URL: http://www.earthSkySea.org
+Encoding: UTF-8
+RoxygenNote: 7.0.2
+VignetteBuilder: knitr
