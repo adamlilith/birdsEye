@@ -2,9 +2,9 @@
 #'
 #' This function extracts a sub-polygon or the coordinates of vertices a sub-polygon from a SpatialPolygon or SpatialPolygonDataFrame object.
 #' @param x SpatialPolygon or SpatialPolygonDataFrame.
-#' @param n Positive integer indicating which sub-polygon to obtain. To see the number of sub-polygons in an object use \code{\link[enmSdm]{countSubGeoms}}.
+#' @param n Positive integer indicating which sub-polygon to obtain. To see the number of sub-polygons in an object use \code{\link[birdsEye]{countSubGeoms}}.
 #' @param out Character, either \code{'poly'} (default) or \code{'coords'}, indicating the returned object should either be a spatial polygon or a matrix of coordinates.
-#' @seealso \code{\link[enmSdm]{countSubGeoms}}, \code{\link[enmSdm]{geomToCoords}}
+#' @seealso \code{\link[birdsEye]{countSubGeoms}}, \code{\link[birdsEye]{geomToCoords}}
 #' @return A spatial polygon object or a two-column matrix.
 #' @examples
 #' data(mad0)

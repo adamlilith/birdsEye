@@ -9,7 +9,7 @@ subGeomFromGeom(x, n)
 \arguments{
 \item{x}{SpatialPolygon or SpatialPolygonDataFrame.}
 
-\item{n}{Positive integer indicating which sub-polygon to obtain. To see the number of sub-polygons in an object use \code{\link[enmSdm]{countSubGeoms}}.}
+\item{n}{Positive integer indicating which sub-polygon to obtain. To see the number of sub-polygons in an object use \code{\link[birdsEye]{countSubGeoms}}.}
 
 \item{out}{Character, either \code{'poly'} (default) or \code{'coords'}, indicating the returned object should either be a spatial polygon or a matrix of coordinates.}
 }
@@ -37,5 +37,5 @@ plot(sub)
 }
 }
 \seealso{
-\code{\link[enmSdm]{countSubGeoms}}, \code{\link[enmSdm]{geomToCoords}}
+\code{\link[birdsEye]{countSubGeoms}}, \code{\link[birdsEye]{geomToCoords}}
 }

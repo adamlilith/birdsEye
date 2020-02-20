@@ -9,7 +9,7 @@ geomToCoords(x, n = NULL, out = "matrix", removeClose = TRUE)
 \arguments{
 \item{x}{SpatialPolygon, SpatialPolygonDataFrame, SpatiaLines, or SpatialLinesDataFrame.}
 
-\item{n}{\code{NULL} or positive integer(s) indicating which sub-polygon(s) or line(s) to extract. The default \code{NULL} is to extract points for all vertices of all sub-geometries. To see the number of sub-polygons or lines in an object use \code{\link[enmSdm]{countSubGeoms}}.}
+\item{n}{\code{NULL} or positive integer(s) indicating which sub-polygon(s) or line(s) to extract. The default \code{NULL} is to extract points for all vertices of all sub-geometries. To see the number of sub-polygons or lines in an object use \code{\link[birdsEye]{countSubGeoms}}.}
 
 \item{out}{Character, either \code{'matrix'} (default) or \code{'pts'}, indicating the returned object should either be a matrix with coordinates (default) or an object of class SpatialPoints}
 
@@ -29,5 +29,5 @@ plot(island)
 points(pts)
 }
 \seealso{
-\code{\link[enmSdm]{countSubGeoms}}, \code{\link[enmSdm]{subGeomFromGeom}}
+\code{\link[birdsEye]{countSubGeoms}}, \code{\link[birdsEye]{subGeomFromGeom}}
 }

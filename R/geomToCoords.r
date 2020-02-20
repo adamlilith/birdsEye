@@ -2,10 +2,10 @@
 #'
 #' This function extracts coordinates of vertices of a polygon or line from a SpatialPolygon, SpatialPolygonDataFrame, SpatiaLines, or SpatialLinesDataFrame.
 #' @param x SpatialPolygon, SpatialPolygonDataFrame, SpatiaLines, or SpatialLinesDataFrame.
-#' @param n \code{NULL} or positive integer(s) indicating which sub-polygon(s) or line(s) to extract. The default \code{NULL} is to extract points for all vertices of all sub-geometries. To see the number of sub-polygons or lines in an object use \code{\link[enmSdm]{countSubGeoms}}.
+#' @param n \code{NULL} or positive integer(s) indicating which sub-polygon(s) or line(s) to extract. The default \code{NULL} is to extract points for all vertices of all sub-geometries. To see the number of sub-polygons or lines in an object use \code{\link[birdsEye]{countSubGeoms}}.
 #' @param out Character, either \code{'matrix'} (default) or \code{'pts'}, indicating the returned object should either be a matrix with coordinates (default) or an object of class SpatialPoints
 #' @param removeClose Logical, if \code{TRUE} (default), then remove the last pair of coordinates (for polygons only--ignored if lines). Most spatial polygons have the same set of first and last coordinates to complete the polygon.
-#' @seealso \code{\link[enmSdm]{countSubGeoms}}, \code{\link[enmSdm]{subGeomFromGeom}}
+#' @seealso \code{\link[birdsEye]{countSubGeoms}}, \code{\link[birdsEye]{subGeomFromGeom}}
 #' @return A two-column matrix or a SpatialPoints object.
 #' @examples
 #' data(mad0)

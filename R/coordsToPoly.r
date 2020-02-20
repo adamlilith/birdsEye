@@ -5,7 +5,7 @@
 #' @param crs A character string or an object of class \code{\link[sp]{CRS}} which species the coordinate reference system (proj4string) for the polygon. If the object in \code{x} is a spatial object the CRS will be obtained from it unless \code{crs} is specified.
 #' @param closePoly Logical, if \code{TRUE} (default), then close the polygon.
 #' @param id Integer or character, ID value for the object(s).
-#' @seealso \code{\link[enmSdm]{SpatialPolygon}}
+#' @seealso \code{\link[birdsEye]{SpatialPolygon}}
 #' @return A spatial polygon object.
 #' @examples
 #' x <- c(-116.57, -99.13, -62.95, -65.21, -90.08)

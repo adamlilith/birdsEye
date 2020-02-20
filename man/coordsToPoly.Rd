@@ -45,5 +45,5 @@ plot(poly)
 plot(line)
 }
 \seealso{
-\code{\link[enmSdm]{SpatialPolygon}}
+\code{\link[birdsEye]{SpatialPolygon}}
 }
