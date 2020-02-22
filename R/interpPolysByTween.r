@@ -171,7 +171,6 @@ interpPolysByTween <- function(
 				
 				}
 				
-				
 			}
 
 			# coordinates of starting subgeometry of x1
@@ -195,12 +194,12 @@ interpPolysByTween <- function(
 			
 			if (length(ids) > 1) {
 			
-				ids <- sort(unique(tween$id1))
+				ids <- sort(unique(thisTween$id1))
 				uniqueIds <- seq_along(ids)
 				for (countId in 2:length(ids)) {
 				
 					id <- ids[countId]
-					thisThisOut <- coordsToPoly(tween[tween$id1 == id, c('x', 'y')], eaCrs, id=countId)
+					thisThisOut <- coordsToPoly(thisTween[thisTween$id1 == id, c('x', 'y')], eaCrs, id=countId)
 					thisThisOut <- rgeos::gSimplify(thisThisOut, tol=0)
 					thisOut <- rgeos::gUnion(thisOut, thisThisOut)
 				
