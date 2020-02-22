@@ -1,5 +1,5 @@
 # birdsEye
-This package is a complement to the popular `dismo` package for R by Robert Hijmans. Its contains a suite of efficiency functions for preparing data, training and evaluating species distribution models and ecological niche models, and comparing ecological niches.
+This package is a complement to the popular `sp` package for R by Edzer Pebesma, Rohger Bivand, and Virgilio Gomez-Rubio. Its contains a suite of functions for converting spatial objects into other spatial objects and for interpolating between spatial polygons.
 
 You can install this package in R using these commands:
 
