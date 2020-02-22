@@ -2,7 +2,7 @@
 % Please edit documentation in R/interpPolysByBuffer.r
 \name{interpPolysByBuffer}
 \alias{interpPolysByBuffer}
-\title{Spatial interpolation between polygon borders}
+\title{Spatial interpolation between polygon borders using buffers}
 \usage{
 interpPolysByBuffer(
   x1,
@@ -22,7 +22,7 @@ interpPolysByBuffer(
 
 \item{eaCrs}{Character string or object of class CRS. Coordinate reference system (proj4string) for an equal-area projection.}
 
-\item{between}{Numeric between 0 an 1. For areas where \code{x2} is inside \code{x1}, then this is the relative distance from \code{x1} to \code{x2} to place the interpolated border (to a precision determined by \code{delta}). For areas where \code{x2} is outside \code{x1} but part of \code{x2} overlaps \code{x1}, this is relative distance from \code{x1} to the part of \code{x2} outside \code{x1} to place the interpolated polygon border. A value of 0.5 will place the interpolated border between \code{x1} and \code{x2}.}
+\item{between}{Numeric between 0 and 1. For areas where \code{x2} is inside \code{x1}, then this is the relative distance from \code{x1} to \code{x2} to place the interpolated border (to a precision determined by \code{delta}). For areas where \code{x2} is outside \code{x1} but part of \code{x2} overlaps \code{x1}, this is relative distance from \code{x1} to the part of \code{x2} outside \code{x1} to place the interpolated polygon border. A value of 0.5 will place the interpolated border between \code{x1} and \code{x2}.}
 
 \item{method}{Either \code{'grow'} or \code{'shrink'}. A growing interpolation uses a series of increasing buffers around the outside of \code{x2}. A shrinking buffer uses a series of smaller buffers inside \code{x1}.}
 
@@ -32,42 +32,71 @@ interpPolysByBuffer(
 
 \item{verbose}{Logical or integer, if 0 or \code{FALSE} then display no progress indicators. If \code{TRUE} or 1 (default) then display some, if 2 or more display even more.}
 }
-\value{
-A SpatialPolygons object.
-}
 \description{
-This function interpolates between the borders of overlapping spatial polygons.
+This function recreates a stage in the morphing of one SpatialPolygon* to another. The output is a SpatialPolygons object with borders that are "between" the borders of two other SpatialPolygons* objects. This particular function uses inner/outer buffers to estimate the location of polygon vertices.
+}
+\details{
+This function approximates an interpolation... It will not produce a mathematically "elegant" one. A typical application for this function would be to interpolate glacial ice layers from layers that represent ice cover at coarse temporal resolution (e.g., estimating ice coverage at 8500 Kybp given layers at 8000 and 9000 Kybp). As a result, it is assumed that all subgeometries in \code{x2} at least partially overlap a subgeometry in \code{x1} (e.g., \code{x2} represents ice more recently and \code{x1} ice longer ago, so \code{x2} is mostly a spatial subset of \code{x1}). The function operates using the following procedure:
+\enumerate{
+	\item For each subpolygon of \code{x1}:
+\item Find all subpolygons of \code{x2} that overlap it or occur in it (if none, skip to step 8 below).
+\item For each these subpolygons in \code{x2}, obtain the union between it and the \code{x1} subpolygon.
+\item Create a series of nested buffers that can expand from \code{x2} (\code{method='grow'}; i.e., an "outside" buffer on \code{x2}) or contract from \code{x1} (\code{method='shrink'}; i.e., an "inside" buffer on \code{x1}). Buffers will be multiples of \code{delta} in distance from the starting polygon. The buffers are cropped to the intersection of the \code{x2} and \code{x2} sub-polygons. Union the buffers with \code{x2} so they always contain \code{x2} (i.e., they do not get smaller than \code{x2}).
+\item Create a "trajectory" for each vertex of \code{x1}: Find the closest point on the buffer nearest it. Then from this point, find the closest point on the next buffer, and so on, until all buffers have been included. Add the point on \code{x2} that is closest to the last point to the trajectory. The trajectory should trace a path from the vertex of \code{x1} to a vertex of \code{x2}.
+	\item Calculate the length of each segment of the trajectory, starting at the point on \code{x1}. Calculate the length of the length of the entire trajectory, then the length along the trajectory one wishes to go.  This length is given by \code{between} * trajectory length. Find the point on the trajectory (which occurs on one of the buffers or on \code{x2}) that is closest to the desired length. This point represents a vertex of the interpolated polygon. Repeat for all vertices of \code{x1}. From these points create a polygon to be unioned with any preceding polygons made in the same way. This will be unioned with polygons created in subsequent steps to create the interpolated surface.
+\item If part of a \code{x2} subpolygon that overlaps an \code{x1} subpolygon also partially falls outside \code{x1}, calculate a series of buffer either growing from \code{x1} or shrining from \code{x2}. Crop the buffers to the portion of \code{x2} that falls outside \code{x1}. For each point on \code{x1} calculate trajectories as described, but use \code{(1 - between)} * trajectory length as the target length. The idea here is that \code{x1} had to expand to become \code{x2}. Then calculate the interpolated polygon.
+\item If the subpolygon of \code{x1} does not overlap or contain any part of \code{x2}, then calculate its geographic centroid. Calculate a series of buffers that "grow" the centroid or "shrink" from the borders of the \code{x2} subpolygon. Calculate trajectories and then the interpolated polygon as before. The idea here is that the subpolygon of \code{x2} completely disappears (i.e., no portion of it becomes \code{x2}), so it has to shrink to do that.
+\item When finished, union the resulting polygons with \code{x2}.
+}
+Note: If a subpolygon is too small to contain a single buffer, then it is assumed to completely disappear.\cr
+The function can give unexpected results if the geometries of the input polygons are complicated enough if, For example, there are holes or portions that are nearly holes (i.e., the polygon nearly closes on itself). Also note that if using \code{method = 'shrink'}, then the trajectories are not guaranteed to neatly converge on the relevant parts of \code{x2} if the latter are not near the inside-most buffer. If weird results ensue, try reducing \code{delta} or increasing \code{quadsegs} (doing either increases processing time).
 }
 \examples{
 \dontrun{
-xx1 <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49, 43.61,
-46.02, 46.5, 47.5, 47.39, 48.64, 49.05, 48.46, 48.18, 47.54, 46.73)
-yy1 <- c(-18.83, -18.67, -18.87, -19.67, -20.65, -21.64, -23.08, -24.9,
--26.51, -27.09, -26.74, -25.6, -25.14, -26.44, -26.46, -24.96, -23.63, -22.72,
--23.36, -22.29)
-xy1 <- cbind(xx1, yy1)
+# create "x1": has two sub-polygons
+x <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49,
+43.61,46.02, 46.5, 47.5, 47.39, 48.64, 49.05, 48.46, 48.18, 47.54, 46.73, 45.80, 45.59)
+y <- c(-18.83, -18.67, -18.87, -19.67, -20.65, -21.64, -23.08, -24.9,
+-26.51, -27.09, -26.74, -25.6, -25.14, -26.44, -26.46, -24.96, -23.63,
+ -22.72, -23.36, -22.29, -21.45, -20.69)
+xy1a <- cbind(x, y)
 
-xx2 <- c(44.53, 44.18, 44.00, 42.93, 42.29, 42.71, 43.43, 45.15, 46.08, 45.94,
-45.36, 45.76, 46.97, 46.87, 45.94, 45.97, 45.08, 44.50, 44.58)
-yy2 <- c(-24.27, -23.68, -22.86, -21.88, -20.56, -19.31, -20.36, -20.53, -20.93,
--21.81, -21.64, -22.90, -23.44, -24.08, -24.76, -25.95, -25.88, -25.61, -24.46)
-xy2 <- cbind(xx2, yy2)
+x <- c(40.61, 40.07, 40.23, 41.38, 41.38)
+y <- c(-20.51, -20.49, -21.11, -21.55, -21.01)
+xy1b <- cbind(x, y)
 
-x1 <- coordsToPoly(xy1, enmSdm::getCRS('wgs84'))
+x1a <- coordsToPoly(xy1a, enmSdm::getCRS('wgs84'))
+x1b <- coordsToPoly(xy1b, enmSdm::getCRS('wgs84'))
+x1 <- rgeos::gUnion(x1a, x1b)
+
+# create "x2"
+x <- c(44.53, 44.18, 44.00, 42.93, 42.29, 42.71, 43.43, 47.15, 48.08,
+ 45.94,45.36, 45.76, 46.97, 46.87, 45.94, 45.97, 45.08, 44.50, 44.58)
+y <- c(-24.27, -23.68, -22.86, -21.88, -20.56, -19.31, -20.36, -20.53,
+ -20.93,-21.81, -21.64, -22.90, -23.44, -24.08, -24.76, -25.95, -25.88, -25.61, -24.46)
+xy2 <- cbind(x, y)
+
 x2 <- coordsToPoly(xy2, enmSdm::getCRS('wgs84'))
 
-plot(x1)
-plot(x2, border='blue', add=TRUE)
+eaCrs <- enmSdm::getCRS('albersNA')
 
-eaCrs <- enmSdm::getCRS('madAlbers')
-
-inter <- interpPolysByDist(
-	x1, x2, eaCrs=eaCrs, between = 0.3, delta=10000
+interBuff <- interpPolysByBuffer(
+	x1, x2, eaCrs=eaCrs, between = 0.4, delta=10000
 )
 
-plot(inter, lty='dotted', add=TRUE)
+interTween <- interpPolysByTween(
+	x1, x2, eaCrs='laea', between = 0.4, delta=100
+)
+
+plot(x1, col='gray90')
+plot(x2, add=TRUE)
+plot(interBuff, border='red', add=TRUE)
+plot(interTween, border='green', add=TRUE)
+legend('bottomleft',
+	legend=c('x1', 'x2', 'by buffer', 'by tween'),
+	fill=c('gray90', NA, NA, NA),
+	border=c('black', 'black', 'red', 'green'),
+	bty='n'
+)
 }
-}
-\seealso{
-\code{\link[birdsEye]{interPolysByDist}}
 }

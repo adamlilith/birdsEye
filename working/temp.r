@@ -1,39 +1,52 @@
+# source('C:/Ecology/Drive/R/birdsEye/working/temp.r')
+	memory.limit(memory.limit() * 2^30)
+	rm(list=ls())
+	gc()
+	options(stringsAsFactors=FALSE)
 
-library(rgeos)
-library(geosphere)
-library(enmSdm)
-library(sp)
-source('C:/Ecology/Drive/R/enmSdm/working/subGeomFromGeom.r')
-source('C:/Ecology/Drive/R/enmSdm/working/coordsToPoly.r')
-source('C:/Ecology/Drive/R/enmSdm/working/geomToCoords.r')
-source('C:/Ecology/Drive/R/enmSdm/working/countSubGeoms.r')
-
-load('C:/Ecology/Drive/R/enmSdm/working/x1.rda')
-load('C:/Ecology/Drive/R/enmSdm/working/x2.rda')
-
-x1tox2 <- 0.3
-
-plot(x1)
-plot(x2, border='blue', add=TRUE)
+	library(sp)
+	library(raster)
+	library(dismo)
+	library(rgeos)
 	
-# plot(commonSp, add=TRUE, col='gray', border=NA)			
+	library(omnibus) # Adam's custom library on GitHub: adamlilith/omnibus
+	library(enmSdm) # Adam's custom library on GitHub: adamlilith/enmSdm
 
-crs <- proj4string(x1)
-crs <- CRS(crs)
+	source('C:/Ecology/Drive/R/birdsEye/R/coordsToPoly.r')
+	source('C:/Ecology/Drive/R/birdsEye/R/countSubGeoms.r')
+	source('C:/ecology/Drive/R/birdsEye/R/geomToCoords.r')
+	source('C:/ecology/Drive/R/birdsEye/R/subGeomFromGeom.r')
 
-eaCrs <- getCRS('albersNA', TRUE)
+	drive <- 'C:'
+	datesCrosswalk <- read.csv(paste0(drive, '/Ecology/Drive/Data/Paleoglaciers of North America - Dyke & Peltier/Dates Crosswalk.csv'))
+	
+	
+	startIce <- shapefile(paste0(drive, '/Ecology/Drive/Data/Paleoglaciers of North America - Dyke & Peltier/IceMaps_1ka_All/07000icell'))
+	endIce <- shapefile(paste0(drive, '/Ecology/Drive/Data/Paleoglaciers of North America - Dyke & Peltier/IceMaps_1ka_All/08000icell'))
+	
+	# between <- 0.7
+	between <- 1
 
-# plot(segLine, add=T, lty='dotted')
+	x1 <- endIce
+	x2 <- startIce
+	eaCrs <- getCRS('albersNA')
+	method <- 'grow'
+	delta = 30000
+	quadsegs = 5
+	verbose = TRUE
 
+	plot(endIce)
+	plot(startIce, border='orange', lwd=2, add=TRUE)
 
-
-# plot(allEnds, add=T, lty='dashed')
-# plot(segEndsSp, add=T, lty='dashed', col='green')
-
-# points(interpPoint, col='red')
-
-# plot(interpSp, add=T, border='purple', lwd=3)
-
-plot(notCommonSp, add=T, border='orange', lwd=3)
-
-
+source('C:/Ecology/Drive/R/birdsEye/R/interpPolysByBuffer.r')
+	ice <- interpPolysByBuffer(
+		x1=endIce,
+		x2=startIce,
+		eaCrs=getCRS('mollweide'),
+		between=between,
+		delta=20000
+	)
+	
+	plot(ice, col=alpha('blue', 0.2), add=TRUE)
+	
+	
