@@ -1,10 +1,10 @@
-#' Spatial interpolation between polygon borders using buffers
+#' Spatial interpolation between polygon borders
 #'
-#' This function recreates a stage in the morphing of one SpatialPolygon* to another. The output is a SpatialPolygons object with borders that are "between" the borders of two other SpatialPolygons* objects. This particular function uses inner/outer buffers to estimate the location of polygon vertices.
+#' This function recreates a stage in the morphing of one SpatialPolygon* to another. The output is a SpatialPolygons object with borders that are "between" the borders of two other SpatialPolygons* objects.
 #' @param x1 SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.
 #' @param x2 SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.
 #' @param eaCrs Character string or object of class CRS. Coordinate reference system (proj4string) for an equal-area projection.
-#' @param between Numeric between 0 and 1. For areas where \code{x2} is inside \code{x1}, then this is the relative distance from \code{x1} to \code{x2} to place the interpolated border (to a precision determined by \code{delta}). For areas where \code{x2} is outside \code{x1} but part of \code{x2} overlaps \code{x1}, this is relative distance from \code{x1} to the part of \code{x2} outside \code{x1} to place the interpolated polygon border. A value of 0.5 will place the interpolated border between \code{x1} and \code{x2}.
+#' @param between Numeric between 0 an 1. For areas where \code{x2} is inside \code{x1}, then this is the relative distance from \code{x1} to \code{x2} to place the interpolated border (to a precision determined by \code{delta}). For areas where \code{x2} is outside \code{x1} but part of \code{x2} overlaps \code{x1}, this is relative distance from \code{x1} to the part of \code{x2} outside \code{x1} to place the interpolated polygon border. A value of 0.5 will place the interpolated border between \code{x1} and \code{x2}.
 #' @param method Either \code{'grow'} or \code{'shrink'}. A growing interpolation uses a series of increasing buffers around the outside of \code{x2}. A shrinking buffer uses a series of smaller buffers inside \code{x1}.
 #' @param delta Positive numeric, represents distance (typically in meters) by which to grow the buffer at each step. Smaller values yield more accurate interpolation but increase processing time.
 #' @param quadsegs Positive integer, number of line segments to use to approximate a quarter circle. Larger numbers will yield more accurate results but also require more time.
@@ -22,64 +22,41 @@
 #'	\item When finished, union the resulting polygons with \code{x2}.
 #' }
 #' Note: If a subpolygon is too small to contain a single buffer, then it is assumed to completely disappear.\cr
-#' The function can give unexpected results if the geometries of the input polygons are complicated enough if, For example, there are holes or portions that are nearly holes (i.e., the polygon nearly closes on itself). Also note that if using \code{method = 'shrink'}, then the trajectories are not guaranteed to neatly converge on the relevant parts of \code{x2} if the latter are not near the inside-most buffer. If weird results ensue, try reducing \code{delta} or increasing \code{quadsegs} (doing either increases processing time).
-#' @examples
+#' The function can give unexpected results if the geometries of the input polygons are complicated enough if, For example, there are holes or portions that are nearly holes (i.e., the polygon nearly closes on itself). Also note that if using \code{method = 'shrink'}, then the trajectories are not guaranteed to neatly converge on the relevant parts of \code{x2} if the latter are not near the inside-most buffer.
 #' \dontrun{
-#' # create "x1": has two sub-polygons
-#' x <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49,
-#' 43.61,46.02, 46.5, 47.5, 47.39, 48.64, 49.05, 48.46, 48.18, 47.54, 46.73, 45.80, 45.59)
-#' y <- c(-18.83, -18.67, -18.87, -19.67, -20.65, -21.64, -23.08, -24.9,
-#' -26.51, -27.09, -26.74, -25.6, -25.14, -26.44, -26.46, -24.96, -23.63,
-#'  -22.72, -23.36, -22.29, -21.45, -20.69)
-#' xy1a <- cbind(x, y)
+#' xx1 <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49, 43.61,
+#' 46.02, 46.5, 47.5, 47.39, 48.64, 49.05, 48.46, 48.18, 47.54, 46.73)
+#' yy1 <- c(-18.83, -18.67, -18.87, -19.67, -20.65, -21.64, -23.08, -24.9,
+#' -26.51, -27.09, -26.74, -25.6, -25.14, -26.44, -26.46, -24.96, -23.63, -22.72,
+#' -23.36, -22.29)
+#' xy1 <- cbind(xx1, yy1)
 #' 
-#' x <- c(40.61, 40.07, 40.23, 41.38, 41.38)
-#' y <- c(-20.51, -20.49, -21.11, -21.55, -21.01)
-#' xy1b <- cbind(x, y)
+#' xx2 <- c(44.53, 44.18, 44.00, 42.93, 42.29, 42.71, 43.43, 45.15, 46.08, 45.94,
+#' 45.36, 45.76, 46.97, 46.87, 45.94, 45.97, 45.08, 44.50, 44.58)
+#' yy2 <- c(-24.27, -23.68, -22.86, -21.88, -20.56, -19.31, -20.36, -20.53, -20.93,
+#' -21.81, -21.64, -22.90, -23.44, -24.08, -24.76, -25.95, -25.88, -25.61, -24.46)
+#' xy2 <- cbind(xx2, yy2)
 #' 
-#' x1a <- coordsToPoly(xy1a, enmSdm::getCRS('wgs84'))
-#' x1b <- coordsToPoly(xy1b, enmSdm::getCRS('wgs84'))
-#' x1 <- rgeos::gUnion(x1a, x1b)
-#' 
-#' # create "x2"
-#' x <- c(44.53, 44.18, 44.00, 42.93, 42.29, 42.71, 43.43, 47.15, 48.08,
-#'  45.94,45.36, 45.76, 46.97, 46.87, 45.94, 45.97, 45.08, 44.50, 44.58)
-#' y <- c(-24.27, -23.68, -22.86, -21.88, -20.56, -19.31, -20.36, -20.53,
-#'  -20.93,-21.81, -21.64, -22.90, -23.44, -24.08, -24.76, -25.95, -25.88, -25.61, -24.46)
-#' xy2 <- cbind(x, y)
-#' 
+#' x1 <- coordsToPoly(xy1, enmSdm::getCRS('wgs84'))
 #' x2 <- coordsToPoly(xy2, enmSdm::getCRS('wgs84'))
 #' 
-#' eaCrs <- enmSdm::getCRS('albersNA')
+#' plot(x1)
+#' plot(x2, border='blue', add=TRUE)
 #' 
-#' interBuff <- interpPolysByBuffer(
-#' 	x1, x2, eaCrs=eaCrs, between = 0.4, delta=10000
+#' eaCrs <- enmSdm::getCRS('madAlbers')
+#' 
+#' inter <- interpPolysByBuffer(
+#' 	x1, x2, eaCrs=eaCrs, between = 0.7, delta=10000
 #' )
 #' 
-#' interTween <- interpPolysByTween(
-#' 	x1, x2, eaCrs='laea', between = 0.4, delta=100
-#' )
-#' 
-#' plot(x1, col='gray90')
-#' plot(x2, add=TRUE)
-#' plot(interBuff, border='red', add=TRUE)
-#' plot(interTween, border='green', add=TRUE)
-#' legend('bottomleft',
-#' 	legend=c('x1', 'x2', 'by buffer', 'by tween'),
-#' 	fill=c('gray90', NA, NA, NA),
-#' 	border=c('black', 'black', 'red', 'green'),
-#' 	bty='n'
-#' )
-#' }
+#' plot(inter, lty='dotted', add=TRUE)
 #' @export
-interpPolysByBuffer <- function(
+interpPolysByDist <- function(
 	x1,
 	x2,
 	eaCrs,
 	between,
-	method = 'grow',
 	delta = 1000,
-	quadsegs = 5,
 	verbose = TRUE
 ) {
 
@@ -99,8 +76,6 @@ interpPolysByBuffer <- function(
 		# countSubsX1 = 6 for i = 3 is singlet	
 		# countSubsX1 <- 11 for multi-x2
 
-	if (!sp::identicalCRS(x1, x2)) stop('"x1" and "x2" must have the same coordinate reference system.')
-		
 	crs <- sp::CRS(sp::proj4string(x1))
 	if (class(eaCrs) != 'CRS') eaCrs <- sp::CRS(eaCrs)
 
@@ -111,7 +86,7 @@ interpPolysByBuffer <- function(
 	numSubsX1 <- countSubGeoms(x1)
 	numSubsX2 <- countSubGeoms(x2)
 	
-	x2AsSubGeoms <- subGeom(x2, n=NULL)
+	x2AsSubGeoms <- subGeomFromGeom(x2, n=NULL)
 
 	### for each subgeometry of x1 find all x2 subgeoms that touch it
 	#################################################################
@@ -119,15 +94,15 @@ interpPolysByBuffer <- function(
 	for (countSubsX1 in 1:numSubsX1) {
 
 		if (verbose) omnibus::say('Processing subpolygon ', countSubsX1, ' of ', numSubsX1, '...')
-
+	
 		# x1 subgeometry
-		x1Sub <- subGeom(x1, countSubsX1)
+		x1Sub <- subGeomFromGeom(x1, countSubsX1)
 		x1SubCoords <- geomToCoords(x1Sub)
 		x1SubEa <- sp::spTransform(x1Sub, eaCrs)
 		
 		# x1SubAndX2Proximate <- rgeos::gIntersect(x1Sub, x2) | rgeos::gContains(x1Sub, x2) | rgeos::gTouches(x1Sub, x2)
 		x1x2SubsProximate <- any(!is.na(sp::over(x1Sub, x2)))
-
+	
 		### if x1 subgeometry overlaps any part of x2
 		#############################################
 		
@@ -139,22 +114,19 @@ interpPolysByBuffer <- function(
 			## for each subgeometry in x2 that is proximate to this x2 subgeometry
 			for (thisX2Proximate in x2Proximates) {
 
-				x2Sub <- subGeom(x2, thisX2Proximate)
+				x2Sub <- subGeomFromGeom(x2, thisX2Proximate)
 				x2SubEa <- sp::spTransform(x2Sub, eaCrs)
 					
 				### for parts inside x1 calculate buffer from x1 to x2
 				commonEa <- rgeos::gUnion(x2SubEa, x1SubEa)
-				
-				# generate series of buffers
-				theseBuffs <- .generateBuffsPolyVsPoly(from=x1SubEa, to=x2SubEa, demesne=commonEa, method=method, delta=delta, crs=crs, quadsegs=quadsegs)
-				
 				### calculate trajectory for each point on x1 to x2
 				
 				# for each vertex of x1 subgeometry
 				if (exists('thisInterps', inherits=FALSE)) rm(thisInterps)
 				for (countX1Point in 1:nrow(x1SubCoords)) {
 
-					interpPoint <- .locateInterpPoint(start=x1SubCoords[countX1Point, , drop=FALSE], end=x2Sub, buffs=theseBuffs, between=between, crs=crs)
+					startSp <- sp::SpatialPoints(x1SubCoords[countX1Point, , drop=FALSE], crs)
+					interpPoint <- .locateInterpPoint(start=startSp, end=x2Sub, between=between)
 
 					thisInterps <- if (exists('thisInterps', inherits=FALSE)) {
 						rbind(thisInterps, interpPoint)
@@ -192,7 +164,7 @@ interpPolysByBuffer <- function(
 					# for each component of x2 subgeometry outside x1 subgeometry (ie, sub-sub-geometries of x2)
 					for (x2OutsideSubs in 1:countSubGeoms(x2Outside)) {
 						
-						x2OutsideSub <- subGeom(x2Outside, x2OutsideSubs)
+						x2OutsideSub <- subGeomFromGeom(x2Outside, x2OutsideSubs)
 						x2OutsideSubEa <- sp::spTransform(x2OutsideSub, eaCrs)
 						x2OutsideSubCoords <- geomToCoords(x2OutsideSub)
 
@@ -203,7 +175,7 @@ interpPolysByBuffer <- function(
 							# .generateBuffsPolyVsPoly(from=x2OutsideSubEa, to=x1SubEa, demesne=x2OutsideSubEa, method='shrink', delta=delta, quadsegs=quadsegs)
 						# }
 						
-						theseBuffs <- .generateBuffsPolyVsPoly(from=x1SubEa, to=x2OutsideSubEa, demesne=x2OutsideSubEa, method='grow', delta=delta, crs=crs, quadsegs=quadsegs)
+						theseBuffs <- .generateBuffsPolyVsPoly(from=x1SubEa, to=x2OutsideSubEa, demesne=x2OutsideSubEa, method='grow', delta=delta, quadsegs=quadsegs)
 
 						### calculate trajectory for each point on x2 to x1
 						
@@ -211,7 +183,7 @@ interpPolysByBuffer <- function(
 						if (exists('thisInterps', inherits=FALSE)) rm(thisInterps)
 						for (countX2Point in 1:nrow(x2OutsideSubCoords)) {
 
-							interpPoint <- .locateInterpPoint(start=x2OutsideSubCoords[countX2Point, , drop=FALSE], end=x1Sub, buffs=theseBuffs, between=1 - between, crs=crs)
+							interpPoint <- .locateInterpPoint(start=x2OutsideSubCoords[countX2Point, , drop=FALSE], end=x1Sub, buffs=theseBuffs, between=1 - between)
 
 							thisInterps <- if (exists('thisInterps', inherits=FALSE)) {
 								rbind(thisInterps, interpPoint)
@@ -255,7 +227,7 @@ interpPolysByBuffer <- function(
 			centX1SpEa <- rgeos::gCentroid(x1SubEa)
 			centX1Sp <- sp::spTransform(centX1SpEa, crs)
 			startAt <- if (method == 'grow') { 'pt' } else if (method %in% c('auto', 'shrink')) { 'poly' }
-			theseBuffs <- .generateBuffsPointVsPoly(pt=centX1SpEa, poly=x1SubEa, startAt=startAt, method=method, delta=delta, crs=crs, quadsegs=quadsegs)
+			theseBuffs <- .generateBuffsPointVsPoly(pt=centX1SpEa, poly=x1SubEa, startAt=startAt, delta=delta, quadsegs=quadsegs)
 		
 			# if the subgeometry was not too small to place buffers, calculate interpolation... otherwise, assume it disappears
 			if (length(theseBuffs) > 0) {
@@ -265,7 +237,7 @@ interpPolysByBuffer <- function(
 				for (countX1Point in 1:nrow(x1SubCoords)) {
 
 					# note: using 1 minus between!
-					interpPoint <- .locateInterpPoint(start=x1SubCoords[countX1Point, , drop=FALSE], end=centX1Sp, buffs=theseBuffs, between=between, crs=crs)
+					interpPoint <- .locateInterpPoint(start=x1SubCoords[countX1Point, , drop=FALSE], end=centX1Sp, buffs=theseBuffs, between=between)
 
 					thisInterps <- if (exists('thisInterps', inherits=FALSE)) {
 						rbind(thisInterps, interpPoint)
@@ -310,21 +282,20 @@ interpPolysByBuffer <- function(
 
 
 	### generate a set of buffers inside one polygon based on another polygon
-	.generateBuffsPolyVsPoly <- compiler::cmpfun(function(from, to, demesne, method, delta, crs, quadsegs=5) {
+	.generateBuffsPolyVsPoly <- function(from, to, demesne, method, delta, quadsegs=5) {
 
 		# from		spatial object in equal-area CRS, growing/shrinking *from* this object
 		# to		spatial object in equal-area CRS, growing/shrinking *to* this object
 		# demesne	area buffers need to encompass before halting (if growing)
 		# method	"grow" or "auto" (from "from") OR "shrink" (from "from")
 		# delta		distance multiplier for each buffer
-		# crs		object of class CRS
 		# quadsegs	number of segments used to approximate a quarter-circle
 
 		buffs <- list()
 		continue <- TRUE
 		i <- 1
 
-		# demesne <- rgeos::gBuffer(demesne, width=-delta / 10)
+		demesne <- rgeos::gBuffer(demesne, width=-delta / 10)
 		
 		while (continue) {
 
@@ -362,17 +333,15 @@ interpPolysByBuffer <- function(
 		
 		buffs
 		
-	})
+	}
 
 	### generate a set of buffers inside a polygon relative to a point
-	.generateBuffsPointVsPoly <- compiler::cmpfun(function(pt, poly, startAt, method, delta, crs, quadsegs=5) {
+	.generateBuffsPointVsPoly <- function(pt, poly, startAt, delta, quadsegs=5) {
 
 		# pt		spatial point in equal-area CRS, must occur *inside* or on the polygon
 		# poly		spatial polygon(s) in equal-area CRS
 		# startAt	"poly" (shrink from poly), OR "pt" or "auto" (grow from point)
-		# method	'grow', 'shrink', 'auto'
 		# delta		distance multiplier for each buffer
-		# crs		object of class CRS
 		# quadsegs	number of segments used to approximate a quarter-circle
 
 		buffs <- list()
@@ -411,16 +380,22 @@ interpPolysByBuffer <- function(
 		if (method %in% c('grow', 'auto')) buffs <- rev(buffs)
 		buffs
 		
-	})
+	}
 
 	### for a given starting point and a set of buffers, calculate the coordinate of the interpolation
-	.locateInterpPoint <- compiler::cmpfun(function(start, end, method, buffs, between, crs) {
+	.locateInterpPoint <- function(start, end, between) {
 	
-		# start			2-column matrix of the *coordinates* of the starting point
+		# start			SpatialPoints of starting location (unprojected)
 		# end			polygon/points of end point candidates (unprojected)
-		# buffs			list of buffers
 		# between		proportionate distance along trajectory where to locate interpolated point
-		# crs			object of class CRS
+
+		subtendsSp <- rgeos::gNearestPoints(start, end)
+		subtendsSp <- coordsToLine(sp::coordinates(subtendsSp), crs)
+		dist <- geosphere::lengthLine(subtendsSp)
+		
+		subtendsSpEa <- sp::spTransform(subtendsSp, eaCrs)
+		pointsAlongSpEa <- sp::spsample(subtendsSpEa, n=floor(dist / delta), type='regular')
+		pointsAlongSp <- sp::spTransform(pointsAlongSpEa, crs)
 		
 		# get trajectory coordinates
 		traject <- start
@@ -444,21 +419,17 @@ interpPolysByBuffer <- function(
 				
 				# closest point is on a buffer
 				if (min(distsToBuff) < min(distsToEnd)) {
-				
 					closest <- which.min(distsToBuff)
 					traject <- rbind(traject, thisBuffCoords[closest, , drop=FALSE])
 					countBuff <- countBuff + 1
 					continue <- (countBuff <= length(buffs))
 					stopOnEnd <- FALSE
-				
 				# closest point is on the end geometry
 				} else {
-					
 					closest <- which.min(distsToEnd)
 					traject <- rbind(traject, endCoords[closest, , drop=FALSE])
 					continue <- FALSE
 					stopOnEnd <- TRUE
-					
 				}
 				
 			} # next buffer
@@ -508,4 +479,4 @@ interpPolysByBuffer <- function(
 		
 		out
 			
-	})
+	}	

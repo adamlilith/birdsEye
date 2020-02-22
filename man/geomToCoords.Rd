@@ -7,9 +7,9 @@
 geomToCoords(x, n = NULL, out = "matrix", removeClose = TRUE)
 }
 \arguments{
-\item{x}{SpatialPolygon, SpatialPolygonDataFrame, SpatiaLines, or SpatialLinesDataFrame.}
+\item{x}{SpatialPolygon, SpatialPolygonDataFrame, SpatiaLines, SpatialLinesDataFrame, SpatialPoints, or SpatialPointsDataFrame.}
 
-\item{n}{\code{NULL} or positive integer(s) indicating which sub-polygon(s) or line(s) to extract. The default \code{NULL} is to extract points for all vertices of all sub-geometries. To see the number of sub-polygons or lines in an object use \code{\link[birdsEye]{countSubGeoms}}.}
+\item{n}{\code{NULL} or positive integer(s) indicating which sub-polygon(s) or line(s) to extract. The default \code{NULL} is to extract points for all vertices of all sub-geometries. To see the number of sub-polygons or lines in an object use \code{\link[birdsEye]{countSubGeoms}}. This is ignored if the object in \code{x} is a SpatialPoints* object.}
 
 \item{out}{Character, either \code{'matrix'} (default) or \code{'pts'}, indicating the returned object should either be a matrix with coordinates (default) or an object of class SpatialPoints}
 
@@ -23,11 +23,11 @@ This function extracts coordinates of vertices of a polygon or line from a Spati
 }
 \examples{
 data(mad0)
-island <- subGeomFromGeom(mad0, 1)
+island <- subGeom(mad0, 1)
 pts <- geomToCoords(island, 1)
 plot(island)
 points(pts)
 }
 \seealso{
-\code{\link[birdsEye]{countSubGeoms}}, \code{\link[birdsEye]{subGeomFromGeom}}
+\code{\link[birdsEye]{countSubGeoms}}, \code{\link[birdsEye]{subGeom}}
 }

@@ -8,7 +8,7 @@
 #' @param delta Positive numeric, precision of output. The polygon that results will be "true" to the "real" polygon (in a perfect world) to within this distance typically in meters).
 #' @param verbose Logical, if \code{TRUE} then display progress.
 #' @return A SpatialPolygons object.
-#' @seealso \code{\link[birdsEye]{interPolysByBuffer}}
+#' @seealso
 #' @examples
 #' \dontrun{
 #' xx1 <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49, 43.61,
@@ -38,7 +38,7 @@
 #' 
 #' plot(inter, lty='dotted', add=TRUE)
 #' }
-#' @export
+
 interpPolysByDist <- function(
 	x1,
 	x2,

@@ -2,10 +2,10 @@
 #'
 #' This function converts coordinates to a SpatialPolygon object. To close the polygon the last set of coordinates must be equal to the first. If they are not, then the first set is added to the end. Note that it is possible to create an improper polygon (i.e., that crosses itself).
 #' @param x Either a two-column matrix or data frame with coordinates (first column is longitude, second is latitude), or a list of matrices or data frames, or an object from which coordinates can be extracted using \code{link[sp]{coordinates}}.
-#' @param crs A character string or an object of class \code{\link[sp]{CRS}} which species the coordinate reference system (proj4string) for the polygon. If the object in \code{x} is a spatial object the CRS will be obtained from it unless \code{crs} is specified.
+#' @param crs A character string or an object of class \code{CRS} which species the coordinate reference system (proj4string) for the polygon. If the object in \code{x} is a spatial object the CRS will be obtained from it unless \code{crs} is specified.
 #' @param closePoly Logical, if \code{TRUE} (default), then close the polygon.
 #' @param id Integer or character, ID value for the object(s).
-#' @seealso \code{\link[birdsEye]{SpatialPolygon}}
+#' @seealso \code{\link[sp]{SpatialPolygons}}
 #' @return A spatial polygon object.
 #' @examples
 #' x <- c(-116.57, -99.13, -62.95, -65.21, -90.08)

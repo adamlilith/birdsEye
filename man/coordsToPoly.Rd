@@ -15,7 +15,7 @@ coordsToLines(x, crs, id = seq_along(x))
 \arguments{
 \item{x}{Either a two-column matrix or data frame with coordinates (first column is longitude, second is latitude), or a list of matrices or data frames, or an object from which coordinates can be extracted using \code{link[sp]{coordinates}}.}
 
-\item{crs}{A character string or an object of class \code{\link[sp]{CRS}} which species the coordinate reference system (proj4string) for the polygon. If the object in \code{x} is a spatial object the CRS will be obtained from it unless \code{crs} is specified.}
+\item{crs}{A character string or an object of class \code{CRS} which species the coordinate reference system (proj4string) for the polygon. If the object in \code{x} is a spatial object the CRS will be obtained from it unless \code{crs} is specified.}
 
 \item{closePoly}{Logical, if \code{TRUE} (default), then close the polygon.}
 
@@ -45,5 +45,5 @@ plot(poly)
 plot(line)
 }
 \seealso{
-\code{\link[birdsEye]{SpatialPolygon}}
+\code{\link[sp]{SpatialPolygons}}
 }
