@@ -37,6 +37,8 @@ interTween <- interpPolysByTween(
 	x1, x2, eaCrs='laea', between = 0.4, delta=100
 )
 
+interTween <- interTween[[1]]$poly
+
 plot(x1, col='gray90')
 plot(x2, add=TRUE)
 plot(interBuff, border='red', add=TRUE)
@@ -47,3 +49,23 @@ legend('bottomleft',
 	border=c('black', 'black', 'red', 'green'),
 	bty='n'
 )
+
+## multiple steps
+between <- seq(0, 1, by=0.1)
+interTween <- interpPolysByTween(
+	x1, x2, eaCrs='laea', between = between, delta=100
+)
+
+plot(x1, col='gray90')
+plot(x2, add=TRUE)
+for (i in seq_along(between)) {
+	plot(interTween[[i]]$poly, border='green', lty='dotted', add=TRUE)
+}
+
+legend('bottomleft',
+	legend=c('x1', 'x2', 'tweens'),
+	fill=c('gray90', NA, NA),
+	border=c('black', 'black', 'green'),
+	bty='n'
+)
+
