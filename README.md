@@ -14,6 +14,9 @@ NB: If for some reason these commands don't work, you can install the package(s)
 ## Spatial interpolation
 * `interpPolysByBuffer` and `interpPolysByTween`: Interpolate between two spatial polygons
 
+## Coordinate reference systems
+* `makeCRS`: Return a custom proj4string (coordinate reference system string)
+
 ## Utilities
 * `coordsToLine`: Convert coordinates to a spatial line
 * `coordsToLines`: Convert a list of coordinates to spatial lines

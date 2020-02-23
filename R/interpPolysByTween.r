@@ -121,7 +121,7 @@ interpPolysByTween <- function(
 			if (eaCrs %in% c('laea', 'mollweide')) {
 				ell <- ellipsoid(crs)
 				dat <- datum(crs)
-				eaCrs <- enmSdm::makeCRS(eaCrs, long0=long0, lat0=lat0, dat=dat, ell=ell, asCRS=TRUE)
+				eaCrs <- birdsEye::makeCRS(eaCrs, long0=long0, lat0=lat0, dat=dat, ell=ell, asCRS=TRUE)
 			} else {
 				eaCrs <- sp::CRS(eaCrs)
 			}
