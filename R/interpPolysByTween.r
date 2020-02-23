@@ -120,8 +120,8 @@ interpPolysByTween <- function(
 		lat0 <- sp::coordinates(centSp)[1, 2]
 		if (class(eaCrs) != 'CRS') {
 			if (eaCrs %in% c('laea', 'mollweide', 'oae', 'aeqd')) {
-				ell <- ellipsoid(crs)
-				dat <- datum(crs)
+				ell <- birdsEye::ellipsoid(crs)
+				dat <- birdsEye::datum(crs)
 				eaCrs <- birdsEye::makeCRS(eaCrs, long0=long0, lat0=lat0, dat=dat, ell=ell, asCRS=TRUE)
 			} else {
 				eaCrs <- sp::CRS(eaCrs)
