@@ -19,10 +19,11 @@ interpPolysByTween(
 
 \item{x2}{SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.}
 
-\item{eaCrs}{This is either a proj4 string, an object of class \code{CRS}, or an abbreviated name of equal-area projection to use. The polygons will be projected to this coordinate reference system before interpolation. Ideally, the center point of the projection should be in the center of the polygons to minimize distortion. Options include:
+\item{eaCrs}{This is either a proj4 string, an object of class \code{CRS}, or an abbreviated name of equal-area projection to use. The polygons will be projected to this coordinate reference system before interpolation. Ideally, the center point of the projection should be in the center of the polygons to minimize distortion. See \code{\link[birdsEye]{makeCRS}}. Options include:
 \itemize{
 \item \code{'laea'}: Lambert azimuthal equal-area
  \item \code{'mollweide'}: Mollweide (equal-area)
+ \item \code{'oae'} or \code{aeqd}: oblique azimuthal equidistant projection
 }}
 
 \item{between}{Numeric between 0 and 1. This is the relative distance from \code{x1} to \code{x2} to place the interpolated border (higher values of \code{delta} increase precision but also increase computational time). A value of 0 should return a polygon the same as \code{x1} and a value of 1 should return a polygon the same as \code{x2}.}
