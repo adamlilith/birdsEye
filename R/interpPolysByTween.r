@@ -3,10 +3,11 @@
 #' This function recreates stages in the morphing of one SpatialPolygon* to another. The output is a SpatialPolygons object with borders that are "between" the borders of two other SpatialPolygons* objects. This particular function uses spatial tweening to estimate vertices of polygons.
 #' @param x1 SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.
 #' @param x2 SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.
-#' @param eaCrs This is either a proj4 string, an object of class \code{CRS}, or an abbreviated name of equal-area projection to use. The polygons will be projected to this coordinate reference system before interpolation. Ideally, the center point of the projection should be in the center of the polygons to minimize distortion. Options include:
+#' @param eaCrs This is either a proj4 string, an object of class \code{CRS}, or an abbreviated name of equal-area projection to use. The polygons will be projected to this coordinate reference system before interpolation. Ideally, the center point of the projection should be in the center of the polygons to minimize distortion. See \code{\link[birdsEye]{makeCRS}}. Options include:
 #' \itemize{
 #'	\item \code{'laea'}: Lambert azimuthal equal-area
 #'  \item \code{'mollweide'}: Mollweide (equal-area)
+#'  \item \code{'oae'} or \code{aeqd}: oblique azimuthal equidistant projection
 #' }
 #' @param between Numeric between 0 and 1. This is the relative distance from \code{x1} to \code{x2} to place the interpolated border (higher values of \code{delta} increase precision but also increase computational time). A value of 0 should return a polygon the same as \code{x1} and a value of 1 should return a polygon the same as \code{x2}.
 #' @param method method used to optimize tweened polygons. Either \code{'cubic-in-out'} or \code{'linear'}.
@@ -118,7 +119,7 @@ interpPolysByTween <- function(
 		long0 <- sp::coordinates(centSp)[1, 1]
 		lat0 <- sp::coordinates(centSp)[1, 2]
 		if (class(eaCrs) != 'CRS') {
-			if (eaCrs %in% c('laea', 'mollweide')) {
+			if (eaCrs %in% c('laea', 'mollweide', 'oae', 'aeqd')) {
 				ell <- ellipsoid(crs)
 				dat <- datum(crs)
 				eaCrs <- birdsEye::makeCRS(eaCrs, long0=long0, lat0=lat0, dat=dat, ell=ell, asCRS=TRUE)
