@@ -12,8 +12,10 @@
 #' @param method method used to optimize tweened polygons. Either \code{'cubic-in-out'} or \code{'linear'}.
 #' @param delta Positive numeric, represents distance (typically in meters) by which to grow the buffer at each step. Smaller values yield more accurate interpolation but increase processing time.
 #' @param verbose Logical. If \code{TRUE} then display progress indicators.
+#' @return SpatialPolygons object.
+#' @details Although higher values of \code{delta} may seem to generate smoother translations, in some cases smaller values can address weirdnesses (e.g., holes that appear and disappear then appear again).
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # create "x1": has two sub-polygons
 #' x <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49,
 #' 43.61,46.02, 46.5, 47.5, 47.39, 48.64, 49.05, 48.46, 48.18, 47.54, 46.73, 45.80, 45.59)
@@ -48,6 +50,8 @@
 #' interTween <- interpPolysByTween(
 #' 	x1, x2, eaCrs='laea', between = 0.4, delta=100
 #' )
+#'
+#' interTween <- interTween[[1]]$poly
 #' 
 #' plot(x1, col='gray90')
 #' plot(x2, add=TRUE)
@@ -57,6 +61,25 @@
 #' 	legend=c('x1', 'x2', 'by buffer', 'by tween'),
 #' 	fill=c('gray90', NA, NA, NA),
 #' 	border=c('black', 'black', 'red', 'green'),
+#' 	bty='n'
+#' )
+#'
+#' ## multiple steps
+#' between <- seq(0, 1, by=0.1)
+#' interTween <- interpPolysByTween(
+#' 	x1, x2, eaCrs='laea', between = between, delta=100
+#' )
+#' 
+#' plot(x1, col='gray90')
+#' plot(x2, add=TRUE)
+#' for (i in seq_along(between)) {
+#' 	plot(interTween[[i]]$poly, border='green', lty='dotted', add=TRUE)
+#' }
+#' 
+#' legend('bottomleft',
+#' 	legend=c('x1', 'x2', 'tweens'),
+#' 	fill=c('gray90', NA, NA),
+#' 	border=c('black', 'black', 'green'),
 #' 	bty='n'
 #' )
 #' }
@@ -74,6 +97,13 @@ interpPolysByTween <- function(
 
 	if (!sp::identicalCRS(x1, x2)) stop('"x1" and "x2" must have the same coordinate reference system.')
 
+	# list of polygons
+	outs <- list()
+	for (i in seq_along(between)) {
+		outs[[i]] <- list()
+		outs[[i]]$between <- between[i]
+	}
+	
 	### create equal-area CRS with centroid of polygons as its center
 	#################################################################
 
@@ -136,18 +166,6 @@ interpPolysByTween <- function(
 			# tween to x2 subgeometries that are proximate with this x1 subgeometry
 			} else {
 
-				# # add points to x2 subgeometry to make for better tweening
-				# x2OnX1SubEa <- x2Ea[x2Prox]
-				# x2OnX1SubEa <- rgeos::gUnaryUnion(x2OnX1SubEa)
-				# numX2SubCoords <- nrow(geomToCoords(x2OnX1SubEa))
-				# x2OnX1Sub <- sp::spTransform(x2OnX1SubEa, crs)
-				# x2OnX1SubLength <- geosphere::lengthLine(x2OnX1Sub)
-				# diff <- numX1Coords - numX2SubCoords
-				# if (diff > 0) {
-					# x2OnX1Sub <- geosphere::makePoly(x2OnX1Sub, x2OnX1SubLength / diff, sp=TRUE)
-					# x2OnX1SubEa <- sp::spTransform(x2OnX1Sub, eaCrs)
-				# }
-			
 				# get x2 subgeometries proximate to this x1 subgeometry and convert to data frame with id
 				x2SubSpEa <- x2Ea[x2Prox[1]]
 				
@@ -181,47 +199,57 @@ interpPolysByTween <- function(
 
 			### interpolate by tweening
 			tween <- transformr::tween_polygon(from, to, ease=method, nframes=delta, id=NULL, match = FALSE)
-			# tween2 <- transformr::tween_polygon(from, to, ease=method, nframes=delta, id=NULL, match = FALSE) %>% keep_state(10)
 			names(tween) <- c('x', 'y', 'id1', 'id2', 'phase', 'frame')
-			
-			whichFrame <- max(1, round(between * delta))
-			thisTween <- tween[tween$frame == whichFrame, , drop=FALSE]
-			
-			### convert to spatial object(s)
-			ids <- sort(unique(thisTween$id1))
-			thisOut <- coordsToPoly(thisTween[thisTween$id1 == ids[1], c('x', 'y')], eaCrs)
-			thisOut <- rgeos::gSimplify(thisOut, tol=0)
-			
-			if (length(ids) > 1) {
-			
-				ids <- sort(unique(thisTween$id1))
-				uniqueIds <- seq_along(ids)
-				for (countId in 2:length(ids)) {
 				
-					id <- ids[countId]
-					thisThisOut <- coordsToPoly(thisTween[thisTween$id1 == id, c('x', 'y')], eaCrs, id=countId)
-					thisThisOut <- rgeos::gSimplify(thisThisOut, tol=0)
-					thisOut <- rgeos::gUnion(thisOut, thisThisOut)
+			### for each value of between, get polygon
+			for (countBetween in seq_along(between)) {
+				
+				thisBetween <- between[countBetween]
+				
+				whichFrame <- max(1, round(thisBetween * delta))
+				thisTween <- tween[tween$frame == whichFrame, , drop=FALSE]
+				
+				### convert to spatial object(s)
+				ids <- sort(unique(thisTween$id1))
+				thisOut <- coordsToPoly(thisTween[thisTween$id1 == ids[1], c('x', 'y')], eaCrs)
+				thisOut <- rgeos::gSimplify(thisOut, tol=0)
+				
+				if (length(ids) > 1) {
+				
+					ids <- sort(unique(thisTween$id1))
+					uniqueIds <- seq_along(ids)
+					for (countId in 2:length(ids)) {
+					
+						id <- ids[countId]
+						thisThisOut <- coordsToPoly(thisTween[thisTween$id1 == id, c('x', 'y')], eaCrs, id=countId)
+						thisThisOut <- rgeos::gSimplify(thisThisOut, tol=0)
+						thisOut <- rgeos::gUnion(thisOut, thisThisOut)
+					
+					}
 				
 				}
-			
-			}
-			
-			# remember
-			interpSpEa <- if (exists('interpSpEa', inherits=FALSE)) {
-				rgeos::gUnion(interpSpEa, thisOut)
-			} else {
-				thisOut
-			}
-	
+				
+				# remember
+				outs[[countBetween]]$poly <- if (exists('poly', where=outs[[countBetween]])) {
+					rgeos::gUnion(outs[[countBetween]]$poly, thisOut)
+				} else {
+					thisOut
+				}
+				
+			} # next value of between
+		
 		} # next subgeometry of x1
 		
 	### post-processing
-	interpSpEa <- rgeos::gSimplify(interpSpEa, tol=0)
-	interpSpEa <- rgeos::gIntersection(interpSpEa, x1Ea)
-	interpSpEa <- rgeos::gUnion(interpSpEa, x2Ea)
-	interpSp <- sp::spTransform(interpSpEa, crs)
+	for (i in seq_along(between)) {
 	
-	interpSp
+		outs[[i]]$poly <- rgeos::gSimplify(outs[[i]]$poly, tol=0)
+		outs[[i]]$poly <- rgeos::gIntersection(outs[[i]]$poly, x1Ea)
+		outs[[i]]$poly <- rgeos::gUnion(outs[[i]]$poly, x2Ea)
+		outs[[i]]$poly <- sp::spTransform(outs[[i]]$poly, crs)
+		
+	}
+	
+	outs
 
 }

@@ -1,7 +1,7 @@
 Package: birdsEye
 Type: Package
 Title: Tools for geographic analysis
-Version: 0.0.0.4
+Version: 0.0.0.5
 Date: 2020-02-22
 Author: Adam B. Smith <adam.smith@mobot.org>
 Maintainer: Adam B. Smith <adam.smith@mobot.org>

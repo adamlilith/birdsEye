@@ -33,11 +33,17 @@ interpPolysByTween(
 
 \item{verbose}{Logical. If \code{TRUE} then display progress indicators.}
 }
+\value{
+SpatialPolygons object.
+}
 \description{
 This function recreates stages in the morphing of one SpatialPolygon* to another. The output is a SpatialPolygons object with borders that are "between" the borders of two other SpatialPolygons* objects. This particular function uses spatial tweening to estimate vertices of polygons.
 }
+\details{
+Although higher values of \code{delta} may seem to generate smoother translations, in some cases smaller values can address weirdnesses (e.g., holes that appear and disappear then appear again).
+}
 \examples{
-\dontrun{
+\donttest{
 # create "x1": has two sub-polygons
 x <- c(44.02, 43.5, 42.61, 42.18, 42, 42.41, 42.75, 41.75, 41.49,
 43.61,46.02, 46.5, 47.5, 47.39, 48.64, 49.05, 48.46, 48.18, 47.54, 46.73, 45.80, 45.59)
@@ -73,6 +79,8 @@ interTween <- interpPolysByTween(
 	x1, x2, eaCrs='laea', between = 0.4, delta=100
 )
 
+interTween <- interTween[[1]]$poly
+
 plot(x1, col='gray90')
 plot(x2, add=TRUE)
 plot(interBuff, border='red', add=TRUE)
@@ -81,6 +89,25 @@ legend('bottomleft',
 	legend=c('x1', 'x2', 'by buffer', 'by tween'),
 	fill=c('gray90', NA, NA, NA),
 	border=c('black', 'black', 'red', 'green'),
+	bty='n'
+)
+
+## multiple steps
+between <- seq(0, 1, by=0.1)
+interTween <- interpPolysByTween(
+	x1, x2, eaCrs='laea', between = between, delta=100
+)
+
+plot(x1, col='gray90')
+plot(x2, add=TRUE)
+for (i in seq_along(between)) {
+	plot(interTween[[i]]$poly, border='green', lty='dotted', add=TRUE)
+}
+
+legend('bottomleft',
+	legend=c('x1', 'x2', 'tweens'),
+	fill=c('gray90', NA, NA),
+	border=c('black', 'black', 'green'),
 	bty='n'
 )
 }
