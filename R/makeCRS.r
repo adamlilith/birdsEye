@@ -7,7 +7,7 @@
 #'	\item \code{lcc} CRS for the Lambert conformal conic projection: \code{'+proj=lcc +lat_1=lat1 +lat_2=lat2 +lat_0=lat0 +lon_0=long0 +x_0=0 +y_0=0 +ellps=ell +datum=dat +units=m no_defs'}, where \code{ell} is the ellipsoid; the pair \code{long0} and \code{lat0} are the longitude and latitude of the center point of the projection (in degrees); and and \code{lat1} and \code{lat2} are the first and second standard parallels.
 #'	\item \code{laea} CRS for the Lambert azimuthal equal-area projection: \code{+proj=laea +lat_0=lat0 +lon_0=long0 +x_0=0 +y_0=0 +ellps= +datum=dat +units=m no_defs}, where \code{ell} is the ellipsoid; and the pair \code{long0} and \code{lat0} are the longitude and latitude of the center point of the projection (in degrees). Defaults: \code{ell = 'GRS80'}. This projection is good for high latitudes/polar regions.
 #'	\item \code{mollweide} CRS for the Mollweide equal-area projection: \code{+proj=moll +lon_0=long0 +x_0=0 +y_0=0 +ellps=ell +datum=dat +units=m no_defs}, where \code{ell} is the ellipsoid; and \code{long0} the center meridian of the projection (in degrees). This projection is good for world maps.
-#' 	\item \code{oae} or \code{aeqd} CRS for the oblique azimuthal equidistant projection: \code{'+proj=aeqd +lat_0=', lat0, ' +lon_0=', long0} where \code{long0} and \code{lat0} are the center point of the projection (in degrees).
+#' 	\item \code{oae} or \code{aeqd} CRS for the oblique azimuthal equidistant projection: \code{'+proj=aeqd +lat_0=', lat0, ' +lon_0=', long0} where \code{long0} and \code{lat0} are the center point of the projection (in degrees). This projection is good for any region of the world.
 #' }
 #' @param long0,lat0 Numeric, specify central point or meridian of the projection. Units are degrees. Both or just one may be needed for a given projection.
 #' @param long1,long2,lat1,lat2 Numeric, specify additional standard parallels or meridians, depending on the projection. These are not needed for all projections.
@@ -40,16 +40,16 @@ makeCRS <- function(
 	if (!is.null(ell)) ell <- toupper(ell)
 	if (!is.null(datum)) dat <- toupper(dat)
 
-	if (x == 'albers') {
-		out <- paste0('+proj=aea +lat_1=', lat1,' +lat_2=', lat2, '+lat_0=', lat0, ' +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m +no_defs')
+	out <- if (x == 'albers') {
+		paste0('+proj=aea +lat_1=', lat1,' +lat_2=', lat2, '+lat_0=', lat0, ' +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m +no_defs')
 	} else if (x == 'laea') {
-		out <- paste0('+proj=laea +lat_0=', lat0, ' +lon_0=', long0, ' +x_0=4321000 +y_0=3210000 +ellps=', ell, ' +towgs84=0,0,0,0,0,0,0 +units=m +no_defs')
+		paste0('+proj=laea +lat_0=', lat0, ' +lon_0=', long0, ' +x_0=4321000 +y_0=3210000 +ellps=', ell, ' +towgs84=0,0,0,0,0,0,0 +units=m +no_defs')
 	} else if (x == 'lcc') {
-		out <- paste0('+proj=lcc +lat_1=', lat1, ' +lat_2=', lat2, ' +lat_0=', lat0, ' +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m no_defs')
+		paste0('+proj=lcc +lat_1=', lat1, ' +lat_2=', lat2, ' +lat_0=', lat0, ' +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m no_defs')
 	} else if (x == 'mollweide') {
-		out <- paste0('+proj=moll +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m no_defs')
+		paste0('+proj=moll +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m no_defs')
 	} else if (x == 'oae' | x == 'aeqd') {
-		out <- paste0('+proj=aeqd +lat_0=', lat0, ' +lon_0=', long0)
+		paste0('+proj=aeqd +lat_0=', lat0, ' +lon_0=', long0)
 	} else {
 		NA
 	}
