@@ -32,13 +32,13 @@ makeCRS <- function(
 	long2 = NULL,
 	lat2 = NULL,
 	ell = 'WGS84',
-	dat = 'WGS8',
+	dat = 'WGS84',
 	asCRS = FALSE
 ) {
 
 	x <- tolower(x)
 	if (!is.null(ell)) ell <- toupper(ell)
-	if (!is.null(datum)) dat <- toupper(dat)
+	if (!is.null(dat)) dat <- toupper(dat)
 
 	out <- if (x == 'albers') {
 		paste0('+proj=aea +lat_1=', lat1,' +lat_2=', lat2, '+lat_0=', lat0, ' +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m +no_defs')
@@ -49,7 +49,7 @@ makeCRS <- function(
 	} else if (x == 'mollweide') {
 		paste0('+proj=moll +lon_0=', long0, ' +x_0=0 +y_0=0 +ellps=', ell, ' +datum=', dat, ' +units=m no_defs')
 	} else if (x == 'oae' | x == 'aeqd') {
-		paste0('+proj=aeqd +lat_0=', lat0, ' +lon_0=', long0)
+		paste0('+proj=aeqd +lat_0=', lat0, ' +lon_0=', long0, ' +ellps=', ell, ' +datum=', dat)
 	} else {
 		NA
 	}

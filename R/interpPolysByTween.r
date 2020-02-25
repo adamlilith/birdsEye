@@ -3,15 +3,15 @@
 #' This function recreates stages in the morphing of one SpatialPolygon* to another. The output is a SpatialPolygons object with borders that are "between" the borders of two other SpatialPolygons* objects. This particular function uses spatial tweening to estimate vertices of polygons.
 #' @param x1 SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.
 #' @param x2 SpatialPolygon or SpatialPolygonDataFrame object in an unprojected (WGS84) coordinate reference system.
+#' @param between Numeric between 0 and 1. This is the relative distance from \code{x1} to \code{x2} to place the interpolated border (higher values of \code{delta} increase precision but also increase computational time). A value of 0 should return a polygon the same as \code{x1} and a value of 1 should return a polygon the same as \code{x2}.
+#' @param delta Positive numeric, represents distance (typically in meters) by which to grow the buffer at each step. Smaller values yield more accurate interpolation but increase processing time.
 #' @param eaCrs This is either a proj4 string, an object of class \code{CRS}, or an abbreviated name of equal-area projection to use. The polygons will be projected to this coordinate reference system before interpolation. Ideally, the center point of the projection should be in the center of the polygons to minimize distortion. See \code{\link[birdsEye]{makeCRS}}. Options include:
 #' \itemize{
 #'	\item \code{'laea'}: Lambert azimuthal equal-area
 #'  \item \code{'mollweide'}: Mollweide (equal-area)
-#'  \item \code{'oae'} or \code{aeqd}: oblique azimuthal equidistant projection
+#'  \item \code{'oae'} (default) or \code{aeqd}: oblique azimuthal equidistant projection
 #' }
-#' @param between Numeric between 0 and 1. This is the relative distance from \code{x1} to \code{x2} to place the interpolated border (higher values of \code{delta} increase precision but also increase computational time). A value of 0 should return a polygon the same as \code{x1} and a value of 1 should return a polygon the same as \code{x2}.
-#' @param method method used to optimize tweened polygons. Either \code{'cubic-in-out'} or \code{'linear'}.
-#' @param delta Positive numeric, represents distance (typically in meters) by which to grow the buffer at each step. Smaller values yield more accurate interpolation but increase processing time.
+#' @param method "Ease" method used to optimize tweened polygons. Any of: \code{'linear'}, \code{'quadratic'}, \code{'cubic'}, \code{'quartic'}, \code{'quintic'}, \code{'sine'}, \code{'circular'}, \code{'exponential'}, \code{'elastic'}, \code{'back'}, \code{'bounce'}. For example, \code{'cubic-in-out'} or \code{'linear-in-out'}. See \code{\link[tweenr]{display_ease}}.
 #' @param verbose Logical. If \code{TRUE} then display progress indicators.
 #' @return SpatialPolygons object.
 #' @details Although higher values of \code{delta} may seem to generate smoother translations, in some cases smaller values can address weirdnesses (e.g., holes that appear and disappear then appear again).
@@ -89,9 +89,9 @@
 interpPolysByTween <- function(
 	x1,
 	x2,
-	eaCrs,
 	between,
 	delta = 20,
+	eaCrs = 'oae',
 	method = 'cubic-in-out',
 	verbose = TRUE
 ) {
