@@ -1,24 +1,24 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1582344020834.000,
+    "created" : 1582389439216.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2741265075",
-    "id" : "DF776EBC",
-    "lastKnownWriteTime" : 1582351541,
-    "last_content_update" : 1582351541,
-    "path" : "C:/Ecology/Drive/R/birdsEye/README.md",
-    "project_path" : "README.md",
+    "hash" : "347821723",
+    "id" : "BBC5B6CF",
+    "lastKnownWriteTime" : 1582436980,
+    "last_content_update" : 1582436980512,
+    "path" : "C:/Ecology/Drive/R/birdsEye/NEWS.md",
+    "project_path" : "NEWS.md",
     "properties" : {
-        "cursorPosition" : "15,0",
+        "cursorPosition" : "0,16",
         "scrollLine" : "0"
     },
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 2,
+    "relative_order" : 3,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "markdown"
