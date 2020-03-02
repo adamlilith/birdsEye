@@ -1,8 +1,8 @@
 Package: birdsEye
 Type: Package
 Title: Tools for geographic analysis
-Version: 0.0.0.5
-Date: 2020-02-22
+Version: 0.0.0.9005
+Date: 2020-03-01
 Author: Adam B. Smith <adam.smith@mobot.org>
 Maintainer: Adam B. Smith <adam.smith@mobot.org>
 Description: Tools for geographic analysis
@@ -14,6 +14,7 @@ Imports:
 	geosphere,
 	omnibus,
 	raster,
+	rgdal,
 	rgeos
 Remotes:
 	adamlilith/omnibus,
