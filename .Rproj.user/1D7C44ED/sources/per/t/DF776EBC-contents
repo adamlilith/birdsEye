@@ -1,6 +1,8 @@
 # birdsEye
 This package is a complement to the popular `sp` package for R by Edzer Pebesma, Roger Bivand, and Virgilio Gomez-Rubio. Its contains a suite of functions for converting spatial objects into other spatial objects and for interpolating between spatial polygons.
 
+Please note that `birdsEye` is in active development. Many of the tools work, but I have yet to do extensive testing. Please be cognizant of this as you use it.  I really appreciate issues brought to my attention as you find them.
+
 You can install this package in R using these commands:
 
 `install.packages('devtools') # if you haven't done this already`  
@@ -13,6 +15,9 @@ NB: If for some reason these commands don't work, you can install the package(s)
 
 ## Spatial interpolation
 * `interpPolysByBuffer` and `interpPolysByTween`: Interpolate between two spatial polygons
+
+## Coordinate reference systems
+* `makeCRS`: Return a custom proj4string (coordinate reference system string)
 
 ## Utilities
 * `coordsToLine`: Convert coordinates to a spatial line
