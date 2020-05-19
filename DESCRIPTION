@@ -1,8 +1,8 @@
 Package: birdsEye
 Type: Package
 Title: Tools for geographic analysis
-Version: 0.0.0.9005
-Date: 2020-03-01
+Version: 0.0.0.9006
+Date: 2020-05-19
 Author: Adam B. Smith <adam.smith@mobot.org>
 Maintainer: Adam B. Smith <adam.smith@mobot.org>
 Description: Tools for geographic analysis
@@ -28,5 +28,5 @@ LazyData: false
 LazyLoad: yes
 URL: http://www.earthSkySea.org
 Encoding: UTF-8
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 VignetteBuilder: knitr
