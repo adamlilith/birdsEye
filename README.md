@@ -5,11 +5,9 @@ Please note that `birdsEye` is in active development. Many of the tools work, bu
 
 You can install this package in R using these commands:
 
-`install.packages('devtools') # if you haven't done this already`  
-`library(devtools)`  
-`devtools::install_github('adamlilith/omnibus')`  
-`devtools::install_github('adamlilith/enmSdm')`  
-`devtools::install_github('adamlilith/birdsEye')`  
+`remotes::install_github('adamlilith/omnibus')`  
+`remotes::install_github('adamlilith/enmSdm')`  
+`remotes::install_github('adamlilith/birdsEye')`  
 
 NB: If for some reason these commands don't work, you can install the package(s) by downloading the latest zip/tar file from the `zipTarFiles` directory and installing the package(s) manually. If you do this, you will also have to install the `omnibus` and `enmSdm` packages, which are on GitHub also under my account (`adamlilith`).
 
